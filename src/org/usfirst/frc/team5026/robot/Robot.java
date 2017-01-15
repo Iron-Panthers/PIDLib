@@ -1,5 +1,6 @@
 
 package org.usfirst.frc.team5026.robot;
+import org.usfirst.frc.team5026.robot.lib.Constants;
 import org.usfirst.frc.team5026.robot.lib.Hardware;
 import org.usfirst.frc.team5026.robot.subsystems.Launcher;
 
@@ -28,7 +29,7 @@ public class Robot extends IterativeRobot {
 	public void robotInit() {
 		oi = new OI();
 		hardware = new Hardware();
-		launcher = new Launcher(5050); //Initial speed
+		launcher = new Launcher(Constants.LAUNCHER_RPM); //Initial speed
 		oi.mapButtons();
 	}
 
