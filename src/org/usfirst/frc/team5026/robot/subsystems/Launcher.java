@@ -1,6 +1,7 @@
 package org.usfirst.frc.team5026.robot.subsystems;
 
 import org.usfirst.frc.team5026.robot.Robot;
+import org.usfirst.frc.team5026.robot.commands.LauncherStop;
 import org.usfirst.frc.team5026.robot.lib.PIDMotorGroup;
 
 import edu.wpi.first.wpilibj.command.Subsystem;
@@ -30,8 +31,7 @@ public class Launcher extends Subsystem {
     	group.setTarget(0);
     }
     public void initDefaultCommand() {
-        // Set the default command for a subsystem here.
-        //setDefaultCommand(new MySpecialCommand());
+        setDefaultCommand(new LauncherStop());
     }
 }
 
