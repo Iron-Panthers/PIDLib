@@ -10,10 +10,9 @@ public class PIDMotorGroup {
 	int encoderPort;
 	int numEncoders;
 	int target = 0;
-	boolean quadature;
+	int encTicks;
 	
-	public PIDMotorGroup(int[] deviceNumbers, boolean[] inverted, boolean quadature, double[] pidf, int pidProfile) {
-		
+	public PIDMotorGroup(int[] deviceNumbers, boolean[] inverted, int encTicks, double[] pidf, int pidProfile) {	
 		talons = new CANTalon[deviceNumbers.length];
 		// All other CANTalons should be followers of the encoderPort CANTalon
 		for (int i = 0; i < talons.length; i++) {
@@ -21,9 +20,11 @@ public class PIDMotorGroup {
 		}
 		checkEncoderPort();
 		// Setup the encoder CANTalon to have the correct values.
+		setupTalons(inverted, pidf, pidProfile);
+		this.encTicks = encTicks;
+	}
+	public void setupTalons(boolean[] inverted, double[] pidf, int pidProfile) {
 		// This can be found in Sec. 17.2.3 in the TalonSRX Software Manual
-		talons[encoderPort].configNominalOutputVoltage(+0.0f, -0.0f);
-    	talons[encoderPort].configPeakOutputVoltage(+12.0f, -12.0f);
     	talons[encoderPort].setProfile(pidProfile);
 		talons[encoderPort].setF(pidf[3]);
     	talons[encoderPort].setP(pidf[0]);
@@ -31,42 +32,38 @@ public class PIDMotorGroup {
     	talons[encoderPort].setD(pidf[2]);
     	// Sec. 17.2.3 (Software Reference Manual)
     	talons[encoderPort].reverseSensor(inverted[encoderPort]);
-    	if (quadature) {
+    	if (encTicks == 4096) {
     		// For a quadature encoder (Versaplanetary encoders)
     		talons[encoderPort].setFeedbackDevice(FeedbackDevice.QuadEncoder);
-    		talons[encoderPort].configEncoderCodesPerRev(1024); // 1/4 * 4096 (CAUSE 4096 IS THE NUMBER OF TICKS PER REV. MEASURED. F U MANUAL (check position changes (big number in selftest))
+    		talons[encoderPort].configEncoderCodesPerRev((int) (0.25*encTicks)); // 1/4 * 4096 (CAUSE 4096 IS THE NUMBER OF TICKS PER REV. MEASURED. F U MANUAL (check position changes (big number in selftest))
     	} else {
     		// TODO: Add Grayhill Encoder mappings
+    		talons[encoderPort].setFeedbackDevice(FeedbackDevice.AnalogEncoder);
+    		talons[encoderPort].configEncoderCodesPerRev(encTicks);
     	}
     	talons[encoderPort].setPosition(0);
-    	talons[encoderPort].setForwardSoftLimit(+15.0);
-    	talons[encoderPort].setReverseSoftLimit(-15.0);
 		talons[encoderPort].changeControlMode(TalonControlMode.Speed);
 		talons[encoderPort].disable();
 		
 		for (int i = 0; i < talons.length; i++) {
 			// Get Encoder port, make sure everything else is follower
 	    	// Sec. 12.1.3 (Software Reference Manual)
-	    	
-	    	talons[i].configNominalOutputVoltage(+0.0f, 0.0f);
-	    	talons[i].configPeakOutputVoltage(+12.0f, 12.0f);
-	    	talons[i].setProfile(pidProfile);
-	    	talons[i].setForwardSoftLimit(+15.0);
-	    	talons[i].setReverseSoftLimit(15.0);
-	    	talons[i].changeControlMode(TalonControlMode.Follower);
-	    	talons[i].reverseOutput(inverted[i]);
-	    	talons[i].set(talons[encoderPort].getDeviceID()); // Follows the encoder CANTalon
+			talons[i].setForwardSoftLimit(+15.0);
+			talons[i].setReverseSoftLimit(-15.0);
+			talons[i].configNominalOutputVoltage(+0.0f, -0.0f);
+	    	talons[i].configPeakOutputVoltage(+12.0f, -12.0f);
+	    	if (i != encoderPort) {
+	    		// Make sure all of the other Talons are followers of the encoder talon
+		    	talons[i].setProfile(pidProfile);
+		    	talons[i].changeControlMode(TalonControlMode.Follower);
+		    	talons[i].reverseOutput(inverted[i]);
+		    	talons[i].set(talons[encoderPort].getDeviceID()); // Follows the encoder CANTalon
+	    	}
 		}
-		this.quadature = quadature;
 	}
 	
 	public int getTicks() {
-		if (quadature) {
-			return 4096; // Ticks for quadature
-		} else {
-			// TODO: ticks for other Grayhill
-			return 0;
-		}
+		return encTicks;
 	}
 	
 	public CANTalon getEncTalon() {

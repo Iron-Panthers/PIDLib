@@ -21,6 +21,9 @@ public class Launcher extends Subsystem {
     public void launchBall() {
     	group.setTarget(launcherSpeed);
     }
+    public void setTarget(int launcherSpeed) {
+    	this.launcherSpeed = launcherSpeed;
+    }
     public void update() {
     	group.update();
     }

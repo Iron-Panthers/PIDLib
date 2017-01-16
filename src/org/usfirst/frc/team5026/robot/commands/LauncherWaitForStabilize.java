@@ -25,13 +25,14 @@ public class LauncherWaitForStabilize extends Command {
 	double alpha = 0.15;
 	double range;
 	
-	boolean finished = false;
+	boolean finished;
 
     public LauncherWaitForStabilize() {
         requires(Robot.launcher);
     }
 
     protected void initialize() {
+    	finished = false;
     	launcher = Robot.launcher;
     	rpm = launcher.launcherSpeed;
     	range = Math.abs(launcher.launcherSpeed * Constants.LAUNCHER_TOLERANCE * launcher.group.getTicks() / 600);

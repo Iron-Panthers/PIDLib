@@ -8,8 +8,7 @@ public class Hardware {
 	public Hardware() {
 		int[] motorPorts = RobotMap.LAUNCHER_MOTOR_PORTS;
     	boolean[] inverted = RobotMap.LAUNCHER_MOTOR_INVERTED;
-    	boolean isVersaplanetary = Constants.LAUNCHER_IS_VERSA;
     	double[] pidf = {Constants.PID_LAUNCHER_P, Constants.PID_LAUNCHER_I, Constants.PID_LAUNCHER_D, Constants.PID_LAUNCHER_F};
-    	launcherGroup = new PIDMotorGroup(motorPorts, inverted, isVersaplanetary, pidf, 0);
+    	launcherGroup = new PIDMotorGroup(motorPorts, inverted, Constants.LAUNCHER_ENCODER_REV, pidf, 0);
 	}
 }
