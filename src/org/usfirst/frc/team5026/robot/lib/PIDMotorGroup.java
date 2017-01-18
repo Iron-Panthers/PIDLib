@@ -11,6 +11,9 @@ public class PIDMotorGroup {
 	int numEncoders;
 	int target = 0;
 	int encTicks;
+	boolean prints;
+	double currentExponentialError = 0;
+	double lastExponentialError;
 	
 	public PIDMotorGroup(int[] deviceNumbers, boolean[] inverted, int encTicks, double[] pidf, int pidProfile) {	
 		talons = new CANTalon[deviceNumbers.length];
@@ -22,6 +25,20 @@ public class PIDMotorGroup {
 		// Setup the encoder CANTalon to have the correct values.
 		setupTalons(inverted, pidf, pidProfile);
 		this.encTicks = encTicks;
+		prints = true;
+	}
+	// TODO: Fix device numbers to take in speedcontrollers
+	public PIDMotorGroup(int[] deviceNumbers, boolean[] inverted, int encTicks, double[] pidf, int pidProfile, boolean prints) {	
+		talons = new CANTalon[deviceNumbers.length];
+		// All other CANTalons should be followers of the encoderPort CANTalon
+		for (int i = 0; i < talons.length; i++) {
+			talons[i] = new CANTalon(deviceNumbers[i]);
+		}
+		checkEncoderPort();
+		// Setup the encoder CANTalon to have the correct values.
+		setupTalons(inverted, pidf, pidProfile);
+		this.encTicks = encTicks;
+		this.prints = prints;
 	}
 	public void setupTalons(boolean[] inverted, double[] pidf, int pidProfile) {
 		// This can be found in Sec. 17.2.3 in the TalonSRX Software Manual
@@ -85,6 +102,7 @@ public class PIDMotorGroup {
 			}
 			catch (InstantiationError e) {
 				// No encoder!
+				// Add in something to not do PID!
 			}
 		}
 		encoderPort = ePort;
@@ -103,6 +121,11 @@ public class PIDMotorGroup {
 	public void setTarget(int target) {
 		// Sets the overall PID Target
 		this.target = target;
+		if (encTicks == 4096) {
+			lastExponentialError = target * encTicks * 0.25;
+		} else {
+			lastExponentialError = target * encTicks;
+		}
 	}
 	
 	public void update() {
@@ -112,7 +135,6 @@ public class PIDMotorGroup {
 	}
 	
 	private void PID(int target) {
-		talons[encoderPort].enable();
 		if (numEncoders == 1) {
 			// Encoder port is the correct port!
 			go(target);
@@ -125,11 +147,13 @@ public class PIDMotorGroup {
 			// No encoders found
 			System.out.println("NO ENCODERS DETECTED!");
 		}
+		talons[encoderPort].enable();
 	}
 	
 	private void go(int target) {
 		talons[encoderPort].changeControlMode(TalonControlMode.Speed);
 		talons[encoderPort].set(target);
+		if (prints) 
 		prints();
 	}
 	
@@ -145,6 +169,16 @@ public class PIDMotorGroup {
 		sb += " Target ";
 		sb += target;
 		System.out.println(sb);
+	}
+	
+	public boolean isStable(double alpha, double range) {
+		currentExponentialError = alpha * Math.abs(getEncTalon().getClosedLoopError()) + (1 - alpha) * lastExponentialError;
+    	if(Math.abs(currentExponentialError) < range) {
+//    		System.out.println("Stable!: " + currentExponentialError + " < " + range);
+    		return true;
+    	}
+    	lastExponentialError = currentExponentialError;
+    	return false;
 	}
 	
 	public void slowStop() {

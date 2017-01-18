@@ -12,14 +12,17 @@ import edu.wpi.first.wpilibj.command.Command;
 public class LauncherLaunch extends Command {
 	
 	Launcher launcher;
+	int rpm;
 
-    public LauncherLaunch() {
+    public LauncherLaunch(int rpm) {
         requires(Robot.launcher);
+        this.rpm = rpm;
     }
 
     protected void initialize() {
     	launcher = Robot.launcher;
-    	launcher.resetTarget();
+    	launcher.setTarget(rpm);
+    	launcher.launchBall();
     }
 
     protected void execute() {

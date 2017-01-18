@@ -33,6 +33,9 @@ public class Launcher extends Subsystem {
     public void resetTarget() {
     	group.setTarget(0);
     }
+    public boolean isStable(double alpha, double range) {
+    	return group.isStable(alpha, range);
+    }
     public void initDefaultCommand() {
         setDefaultCommand(new LauncherStop());
     }

@@ -9,6 +9,6 @@ public class Hardware {
 		int[] motorPorts = RobotMap.LAUNCHER_MOTOR_PORTS;
     	boolean[] inverted = RobotMap.LAUNCHER_MOTOR_INVERTED;
     	double[] pidf = {Constants.PID_LAUNCHER_P, Constants.PID_LAUNCHER_I, Constants.PID_LAUNCHER_D, Constants.PID_LAUNCHER_F};
-    	launcherGroup = new PIDMotorGroup(motorPorts, inverted, Constants.LAUNCHER_ENCODER_REV, pidf, 0);
+    	launcherGroup = new PIDMotorGroup(motorPorts, inverted, Constants.LAUNCHER_ENCODER_REV, pidf, 0, true);
 	}
 }
