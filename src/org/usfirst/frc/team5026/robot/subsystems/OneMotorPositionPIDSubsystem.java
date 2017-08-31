@@ -1,5 +1,6 @@
 package org.usfirst.frc.team5026.robot.subsystems;
 
+import org.usfirst.frc.team5026.robot.Robot;
 import org.usfirst.frc.team5026.robot.lib.Constants;
 import org.usfirst.frc.team5026.robot.lib.ToleranceType;
 
@@ -31,7 +32,10 @@ public class OneMotorPositionPIDSubsystem extends PIDSubsystem {
     public OneMotorPositionPIDSubsystem() {
     	// Initializes everything from Constants instead
     	super(Constants.PID_SUBSYSTEM_NAME, Constants.PID_SUBSYSTEM_P, Constants.PID_SUBSYSTEM_I, Constants.PID_SUBSYSTEM_D, Constants.PID_SUBSYSTEM_F, Constants.PID_SUBSYSTEM_PERIOD);
-    	
+    	toleranceType = Constants.PID_SUBSYSTEM_TOLERANCETYPE;
+    	tolerance = Constants.PID_SUBSYSTEM_TOLERANCE;
+    	encoder = Robot.hardware.encoderPID;
+    	motor = Robot.hardware.motorPID;
     }
 
 	@Override
