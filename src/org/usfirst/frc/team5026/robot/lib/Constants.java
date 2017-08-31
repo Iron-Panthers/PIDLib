@@ -17,4 +17,7 @@ public class Constants {
 	public static final double PID_LAUNCHER_I = 0.0;
 	public static final double PID_LAUNCHER_D = 0.0;
 	public static final double PID_LAUNCHER_F = 0.0;
+	
+	public static final String PID_SUBSYSTEM_NAME = "Oof";
+	public static final double PID_SUBSYSTEM_P = 0;
 }
